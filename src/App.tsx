@@ -29,6 +29,15 @@ type Experience = {
 
 const projects: Project[] = [
   {
+    title: "REAL 3D — Printing Platform",
+    period: "2026",
+    summary: "A 3D printing platform with STL uploads, printing cost estimates, a material storefront, and order management. Built with a MERN stack and an admin dashboard for inventory and operations.",
+    stack: ["React", "Node.js", "Express.js", "MongoDB", "Three.js", "JWT"],
+    accentClass: "preview-real3d",
+    videoSrc: real3dVideo,
+    sourceHref: "https://github.com/Abcdnidhi/REAL-3D"
+  },
+  {
     title: "AI Toolkit [VAST-AI]",
     period: "Jan 2024 - Feb 2024",
     summary:
@@ -49,38 +58,69 @@ const projects: Project[] = [
     clipStart: 1.2,
     clipEnd: 6.2,
     sourceHref: "https://github.com/Abcdnidhi/Backend-heavy-projects"
-  },
-  {
-    title: "REAL 3D — Printing Platform",
-    period: "2026",
-    summary: "A 3D printing platform with STL uploads, printing cost estimates, a material storefront, and order management. Built with a MERN stack and an admin dashboard for inventory and operations.",
-    stack: ["React", "Node.js", "Express.js", "MongoDB", "Three.js", "JWT"],
-    accentClass: "preview-real3d",
-    videoSrc: real3dVideo,
-    sourceHref: "https://github.com/Abcdnidhi/REAL-3D"
   }
 ];
 
 const skillGroups = [
   {
-    label: "Languages",
-    items: ["TypeScript", "Python"]
+    "label": "Languages",
+    "items": [
+      "JavaScript",
+      "Python"
+    ]
   },
   {
-    label: "Backend",
-    items: ["Node.js", "Express.js", "REST APIs", "Authentication", "Realtime Systems"]
+    "label": "Backend",
+    "items": [
+      "Node.js",
+      "Express.js",
+      "REST APIs",
+      "Mongoose"
+    ]
   },
   {
-    label: "Data",
-    items: ["MongoDB", "MySQL", "PostgreSQL"]
+    "label": "Databases",
+    "items": [
+      "MongoDB"
+    ]
   },
   {
-    label: "Frontend",
-    items: ["React", "Next.js", "TailwindCSS"]
+    "label": "Frontend",
+    "items": [
+      "React.js",
+      "Vite"
+    ]
   },
   {
-    label: "Tooling",
-    items: ["Docker", "Git"]
+    "label": "Payments",
+    "items": [
+      "Razorpay",
+      "Payment Webhooks"
+    ]
+  },
+  {
+    "label": "Authentication & Security",
+    "items": [
+      "JWT",
+      "HTTP-only Cookies",
+      "bcrypt",
+      "Google OAuth",
+      "Role-Based Access Control (RBAC)",
+      "Request Validation"
+    ]
+  },
+  {
+    "label": "Tools & Deployment",
+    "items": [
+      "Git",
+      "GitHub",
+      "Postman",
+      "Thunder Client",
+      "Linux",
+      "DigitalOcean",
+      "Nginx",
+      "PM2"
+    ]
   }
 ];
 

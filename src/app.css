@@ -860,3 +860,7 @@ button { cursor: pointer; }
 .preview-real3d .project-preview-screen { background: #10151f; }
 
 .project-summary { flex: 1; }
+
+@media (min-width: 641px) {
+  .skill-group:nth-child(6), .skill-group:nth-child(7) { grid-column: span 3; }
+}
