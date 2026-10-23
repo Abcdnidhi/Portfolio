@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import eyLogo from "./assets/ey-logo-black.webp";
 import nidhiImage from "./assets/nidhi-img.jpeg";
 import societeGeneraleLogo from "./assets/societe-generale.webp";
-import vastVideo from "./assets/ai-saas.mp4";
+const vastVideo = "https://utfs.io/f/924xBEAVsWpcgLx4SbEZJSafbH0564rodkLxvFeAslwX3htU";
 import ticTacToeVideo from "./assets/tic-tac-toe-rec.mp4";
 
 type Project = {
