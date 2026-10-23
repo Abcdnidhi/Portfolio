@@ -4,6 +4,7 @@ import nidhiImage from "./assets/nidhi-img.jpeg";
 import societeGeneraleLogo from "./assets/societe-generale.webp";
 const vastVideo = "https://utfs.io/f/924xBEAVsWpcgLx4SbEZJSafbH0564rodkLxvFeAslwX3htU";
 import ticTacToeVideo from "./assets/tic-tac-toe-rec.mp4";
+import real3dVideo from "./assets/real3d-portfolio.mp4";
 
 type Project = {
   title: string;
@@ -48,6 +49,15 @@ const projects: Project[] = [
     clipStart: 1.2,
     clipEnd: 6.2,
     sourceHref: "https://github.com/Abcdnidhi/Backend-heavy-projects"
+  },
+  {
+    title: "REAL 3D — Printing Platform",
+    period: "2026",
+    summary: "A 3D printing platform with STL uploads, printing cost estimates, a material storefront, and order management. Built with a MERN stack and an admin dashboard for inventory and operations.",
+    stack: ["React", "Node.js", "Express.js", "MongoDB", "Three.js", "JWT"],
+    accentClass: "preview-real3d",
+    videoSrc: real3dVideo,
+    sourceHref: "https://github.com/Abcdnidhi/REAL-3D"
   }
 ];
 
@@ -336,7 +346,7 @@ export default function App() {
           <h2>Check out my latest projects</h2>
           <p>
             I&apos;ve worked on projects ranging from SaaS-style AI products to real-time multiplayer systems.
-            These are two of the strongest examples of my current work.
+            Explore a selection of the products and systems I have built.
           </p>
         </div>
 
