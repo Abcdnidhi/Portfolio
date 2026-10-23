@@ -356,7 +356,7 @@ p {
   border-radius: var(--radius);
   background: var(--panel);
   display: grid;
-  align-content: space-between;
+  align-content: start;
   gap: 12px;
 }
 
@@ -864,3 +864,9 @@ button { cursor: pointer; }
 @media (min-width: 641px) {
   .skill-group:nth-child(6), .skill-group:nth-child(7) { grid-column: span 3; }
 }
+
+.about-grid h3 { font-size: 1.13rem; line-height: 1.4; letter-spacing: -.02em; }
+.about-grid p { color: var(--muted); line-height: 1.75; font-size: .96rem; }
+.about-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 20px 32px; margin-top: 28px; }
+.about-cta p { max-width: 470px; color: var(--muted); line-height: 1.75; }
+.about-cta .btn { max-width: 100%; min-height: 48px; padding-block: 12px; text-align: center; }

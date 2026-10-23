@@ -301,30 +301,36 @@ export default function App() {
 
       <section className="section-block" id="about">
         <div className="section-heading">
-          <p className="section-kicker">01 — About</p>
-          <h2>Building reliable systems with a product mindset.</h2>
+          <p className="section-kicker">01 — How I can help</p>
+          <h2>Want a website of your own?</h2>
           <p>
-            I am a backend-focused developer with hands-on experience in building scalable applications using
-            Node.js, Express.js, and MongoDB. I have a strong foundation in Data Structures &amp; Algorithms
-            using Python, along with a solid understanding of Object-Oriented Programming principles. I enjoy
-            solving complex problems and designing efficient, real-world systems.
+            Bring your idea online with a website that looks great and is easy to use.
+            I build business websites, online stores, and custom web apps — and create
+            Python automations that take repetitive work off your hands.
           </p>
         </div>
 
         <ul className="about-grid">
           <li>
-            <span>Focus</span>
-            <strong>Backend, APIs, realtime systems</strong>
+            <span>01 / Websites</span>
+            <h3>A home for your business</h3>
+            <p>Personal portfolios, landing pages, and business websites that help visitors understand what you offer and get in touch.</p>
           </li>
           <li>
-            <span>Currently</span>
-            <strong>Systems Engineer, Societe Generale</strong>
+            <span>02 / Web applications</span>
+            <h3>More than a website</h3>
+            <p>Online stores, customer accounts, payment integrations, and admin dashboards built around the way your business works.</p>
           </li>
           <li>
-            <span>Strengths</span>
-            <strong>DSA, OOP, Node.js, Next.js</strong>
+            <span>03 / Python automation</span>
+            <h3>Less busywork. More time.</h3>
+            <p>Automate reports, file processing, server health checks, and email alerts so you can focus on the work that matters.</p>
           </li>
         </ul>
+        <div className="about-cta">
+          <p>Have an idea or a task you want to simplify? Tell me what you have in mind.</p>
+          <a className="btn btn-primary" href="mailto:srinidhi5162@gmail.com?subject=Let%27s%20discuss%20a%20project">Let&apos;s discuss your project <span aria-hidden="true">↗</span></a>
+        </div>
       </section>
 
       <section className="section-block" id="experience">
@@ -423,8 +429,7 @@ export default function App() {
           <p className="section-kicker">05 — Contact</p>
           <h2>Get in Touch</h2>
           <p>
-            If you&apos;d like to discuss backend, full-stack, or product-focused roles, feel free to reach
-            out.
+            Need a website, a custom web app, or a Python automation? Share your idea and let&apos;s talk about how I can help.
           </p>
         </div>
 
