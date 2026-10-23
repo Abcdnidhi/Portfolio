@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import eyLogo from "./assets/ey-logo-black.webp";
 import nidhiImage from "./assets/nidhi-img.jpeg";
 import societeGeneraleLogo from "./assets/societe-generale.webp";
+import vastVideo from "./assets/ai-saas.mp4";
 import ticTacToeVideo from "./assets/tic-tac-toe-rec.mp4";
 
 type Project = {
@@ -36,6 +38,7 @@ const projects: Project[] = [
     stack: ["Next.js", "TypeScript", "MySQL", "Prisma", "TailwindCSS", "Stripe", "Shadcn UI"],
     accentClass: "preview-vast",
     previewMode: "video",
+    videoSrc: vastVideo,
     videoLabel: "Live landing page preview",
     websiteHref: "https://github.com/Abcdnidhi/SAAS-AI-CLOUD",
     sourceHref: "https://github.com/Abcdnidhi/SAAS-AI-CLOUD"
@@ -57,19 +60,27 @@ const projects: Project[] = [
   }
 ];
 
-const skills = [
-  "React",
-  "Next.js",
-  "TypeScript",
-  "Node.js",
-  "MySQL",
-  "PostgreSQL",
-  "Docker",
-  "REST APIs",
-  "Realtime Systems",
-  "Authentication",
-  "TailwindCSS",
-  "Git"
+const skillGroups = [
+  {
+    label: "Languages",
+    items: ["TypeScript", "Python"]
+  },
+  {
+    label: "Backend",
+    items: ["Node.js", "Express.js", "REST APIs", "Authentication", "Realtime Systems"]
+  },
+  {
+    label: "Data",
+    items: ["MongoDB", "MySQL", "PostgreSQL"]
+  },
+  {
+    label: "Frontend",
+    items: ["React", "Next.js", "TailwindCSS"]
+  },
+  {
+    label: "Tooling",
+    items: ["Docker", "Git"]
+  }
 ];
 
 const experience: Experience[] = [
@@ -93,49 +104,94 @@ const experience: Experience[] = [
   }
 ];
 
+const sectionLinks = [
+  { href: "#about", label: "About" },
+  { href: "#experience", label: "Experience" },
+  { href: "#skills", label: "Skills" },
+  { href: "#projects", label: "Projects" },
+  { href: "#contact", label: "Contact" }
+];
+
 export default function App() {
-  const vastVideoSrc =
-    "https://utfs.io/f/924xBEAVsWpcgLx4SbEZJSafbH0564rodkLxvFeAslwX3htU";
-  const sectionLinks = [
-    { href: "#top", label: "Home" },
-    { href: "#about", label: "About" },
-    { href: "#experience", label: "Experience" },
-    { href: "#skills", label: "Skills" },
-    { href: "#projects", label: "Projects" },
-    { href: "#contact", label: "Contact" }
-  ];
+  const [activeSection, setActiveSection] = useState("top");
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const ids = ["top", "about", "experience", "skills", "projects", "contact"];
+    const elements = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => Boolean(el));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (visible?.target.id) {
+          setActiveSection(visible.target.id);
+        }
+      },
+      { rootMargin: "-20% 0px -60% 0px", threshold: [0.15, 0.4, 0.7] }
+    );
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const close = () => setMenuOpen(false);
+    window.addEventListener("hashchange", close);
+    return () => window.removeEventListener("hashchange", close);
+  }, []);
 
   return (
     <main className="portfolio-page">
-      <aside className="page-toc" aria-label="Section navigation">
-        <p className="page-toc-title">Navigate</p>
-        <nav className="page-toc-links">
-          {sectionLinks.map((section) => (
-            <a key={section.href} href={section.href}>
-              {section.label}
-            </a>
-          ))}
-        </nav>
-      </aside>
+      <a className="skip-link" href="#top">
+        Skip to content
+      </a>
 
       <header className="site-header">
-        <a className="brand" href="#top">
-          <span className="brand-mark">SN</span>
-          <span className="brand-name">Srinidhi</span>
-        </a>
+        <div className="site-header-inner">
+          <a className="brand" href="#top">
+            <span className="brand-mark">SN</span>
+            <span className="brand-copy">
+              <span className="brand-name">Srinidhi</span>
+              <span className="brand-role">Software Engineer</span>
+            </span>
+          </a>
 
-        <nav className="site-nav" aria-label="Primary">
-          <a href="#about">About</a>
-          <a href="#experience">Experience</a>
-          <a href="#skills">Skills</a>
-          <a href="#projects">Projects</a>
-          <a href="#contact">Contact</a>
-        </nav>
+          <button
+            className="nav-toggle"
+            type="button"
+            aria-expanded={menuOpen}
+            aria-controls="primary-nav"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span className="sr-only">Menu</span>
+            <span />
+            <span />
+          </button>
+
+          <nav className={`site-nav${menuOpen ? " is-open" : ""}`} id="primary-nav" aria-label="Primary">
+            {sectionLinks.map((section) => (
+              <a
+                key={section.href}
+                href={section.href}
+                className={activeSection === section.href.slice(1) ? "is-active" : undefined}
+                onClick={() => setMenuOpen(false)}
+              >
+                {section.label}
+              </a>
+            ))}
+          </nav>
+        </div>
       </header>
 
       <section className="hero-block" id="top">
         <div className="hero-layout">
           <div className="hero-content">
+            <p className="eyebrow">AI &amp; ML graduate · Backend-focused engineer</p>
             <h1 className="hero-title">
               <span className="hero-name">Hi, I&apos;m Srinidhi</span>
               <span className="hero-wave" aria-hidden="true">
@@ -147,32 +203,56 @@ export default function App() {
               Developer specialized in Node.js, Express, and MongoDB. I have a strong passion for building
               user-centric products, with a focus on the Next.js framework.
             </p>
+            <div className="hero-actions">
+              <a className="btn btn-primary" href="#projects">
+                View projects
+              </a>
+              <a className="btn btn-ghost" href="#contact">
+                Get in touch
+              </a>
+            </div>
           </div>
           <div className="hero-photo-wrap">
-            <img className="hero-photo" src={nidhiImage} alt="Portrait of Srinidhi" />
+            <div className="hero-photo-ring">
+              <img className="hero-photo" src={nidhiImage} alt="Portrait of Srinidhi" />
+            </div>
+            <p className="hero-status">Societe Generale · Systems Engineer</p>
           </div>
         </div>
       </section>
 
       <section className="section-block" id="about">
         <div className="section-heading">
-          <div>
-            <h2>About</h2>
-            <p>
-              I am a backend-focused developer with hands-on experience in building scalable applications
-              using Node.js, Express.js, and MongoDB. I have a strong foundation in Data Structures &
-              Algorithms using Python, along with a solid understanding of Object-Oriented Programming
-              principles. I enjoy solving complex problems and designing efficient, real-world systems.
-            </p>
-          </div>
+          <p className="section-kicker">01 — About</p>
+          <h2>Building reliable systems with a product mindset.</h2>
+          <p>
+            I am a backend-focused developer with hands-on experience in building scalable applications using
+            Node.js, Express.js, and MongoDB. I have a strong foundation in Data Structures &amp; Algorithms
+            using Python, along with a solid understanding of Object-Oriented Programming principles. I enjoy
+            solving complex problems and designing efficient, real-world systems.
+          </p>
         </div>
+
+        <ul className="about-grid">
+          <li>
+            <span>Focus</span>
+            <strong>Backend, APIs, realtime systems</strong>
+          </li>
+          <li>
+            <span>Currently</span>
+            <strong>Systems Engineer, Societe Generale</strong>
+          </li>
+          <li>
+            <span>Strengths</span>
+            <strong>DSA, OOP, Node.js, Next.js</strong>
+          </li>
+        </ul>
       </section>
 
       <section className="section-block" id="experience">
         <div className="section-heading">
-          <div>
-            <h2>Work Experience</h2>
-          </div>
+          <p className="section-kicker">02 — Experience</p>
+          <h2>Work Experience</h2>
         </div>
 
         <div className="experience-list">
@@ -185,13 +265,11 @@ export default function App() {
                 <div className="experience-main">
                   <div className="experience-title-row">
                     <h3>{item.org}</h3>
-                    <span className="experience-chevron" aria-hidden="true">
-                      &gt;
-                    </span>
+                    <span className="experience-chevron" aria-hidden="true" />
                   </div>
                   <p className="experience-role">{item.role}</p>
                 </div>
-                <div className="experience-date">{item.period}</div>
+                <p className="experience-date">{item.period}</p>
               </summary>
               <div className="experience-panel">
                 <p className="experience-description">{item.description}</p>
@@ -203,30 +281,35 @@ export default function App() {
 
       <section className="section-block" id="skills">
         <div className="section-heading">
-          <div>
-            <h2>Skills</h2>
-            <p>Technologies and tools I use to design, build, debug, and ship applications.</p>
-          </div>
+          <p className="section-kicker">03 — Skills</p>
+          <h2>Skills</h2>
+          <p>Technologies and tools I use to design, build, debug, and ship applications.</p>
         </div>
 
-        <div className="skills-cloud">
-          {skills.map((skill) => (
-            <span key={skill} className="skill-pill">
-              {skill}
-            </span>
+        <div className="skills-groups">
+          {skillGroups.map((group) => (
+            <div key={group.label} className="skill-group">
+              <h3>{group.label}</h3>
+              <div className="skills-cloud">
+                {group.items.map((skill) => (
+                  <span key={skill} className="skill-pill">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </section>
 
       <section className="section-block" id="projects">
         <div className="section-heading">
-          <div>
-            <h2>Check out my latest projects</h2>
-            <p>
-              I&apos;ve worked on projects ranging from SaaS-style AI products to real-time multiplayer systems.
-              These are two of the strongest examples of my current work.
-            </p>
-          </div>
+          <p className="section-kicker">04 — Selected work</p>
+          <h2>Check out my latest projects</h2>
+          <p>
+            I&apos;ve worked on projects ranging from SaaS-style AI products to real-time multiplayer systems.
+            These are two of the strongest examples of my current work.
+          </p>
         </div>
 
         <div className="projects-grid">
@@ -237,7 +320,7 @@ export default function App() {
                   {project.previewMode === "video" ? (
                     <video
                       className="project-preview-video"
-                      src={project.videoSrc ?? vastVideoSrc}
+                      src={project.videoSrc}
                       autoPlay
                       muted
                       loop
@@ -263,19 +346,27 @@ export default function App() {
                 </div>
                 {project.videoLabel ? <span className="project-preview-label">{project.videoLabel}</span> : null}
               </div>
-              <h3>{project.title}</h3>
-              <p className="project-period">{project.period}</p>
-              <p className="project-summary">{project.summary}</p>
-              <div className="project-stack">
-                {project.stack.map((item) => (
-                  <span key={item} className="stack-pill">
-                    {item}
-                  </span>
-                ))}
-              </div>
-              <div className="project-links">
-                <a href={project.websiteHref}>Website</a>
-                <a href={project.sourceHref}>Source</a>
+              <div className="project-body">
+                <div className="project-meta">
+                  <h3>{project.title}</h3>
+                  <p className="project-period">{project.period}</p>
+                </div>
+                <p className="project-summary">{project.summary}</p>
+                <div className="project-stack">
+                  {project.stack.map((item) => (
+                    <span key={item} className="stack-pill">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+                <div className="project-links">
+                  <a href={project.websiteHref} target="_blank" rel="noreferrer">
+                    Website
+                  </a>
+                  <a href={project.sourceHref} target="_blank" rel="noreferrer">
+                    Source
+                  </a>
+                </div>
               </div>
             </article>
           ))}
@@ -284,72 +375,91 @@ export default function App() {
 
       <section className="section-block contact-block" id="contact">
         <div className="section-heading">
-          <div>
-            <h2>Get in Touch</h2>
-            <p>
-              If you&apos;d like to discuss backend, full-stack, or product-focused roles, feel free to reach out.
-            </p>
-          </div>
+          <p className="section-kicker">05 — Contact</p>
+          <h2>Get in Touch</h2>
+          <p>
+            If you&apos;d like to discuss backend, full-stack, or product-focused roles, feel free to reach
+            out.
+          </p>
         </div>
 
-        <div className="contact-links">
-          <a className="contact-icon-link" href="#top" aria-label="Back to top" title="Home">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M4.5 10.5 12 4l7.5 6.5M7 9.5V20h10V9.5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+        <div className="contact-panel">
+          <a className="btn btn-primary" href="mailto:srinidhi5162@gmail.com">
+            srinidhi5162@gmail.com
           </a>
-          <a
-            className="contact-icon-link"
-            href="mailto:srinidhi5162@gmail.com"
-            aria-label="Email Srinidhi"
-            title="srinidhi5162@gmail.com"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M4 6.5h16a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 20 17.5H4A1.5 1.5 0 0 1 2.5 16V8A1.5 1.5 0 0 1 4 6.5Zm0 1 8 5 8-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </a>
-          <a
-            className="contact-icon-link"
-            href="https://github.com/Abcdnidhi"
-            aria-label="GitHub profile"
-            title="GitHub"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M12 2.75a9.25 9.25 0 0 0-2.92 18.03c.46.08.63-.2.63-.45v-1.58c-2.57.56-3.11-1.09-3.11-1.09-.42-1.06-1.02-1.34-1.02-1.34-.84-.58.06-.57.06-.57.92.07 1.41.95 1.41.95.83 1.4 2.17 1 2.7.77.08-.6.32-1 .58-1.24-2.05-.23-4.2-1.02-4.2-4.57 0-1.01.36-1.84.95-2.48-.1-.23-.41-1.17.09-2.43 0 0 .77-.25 2.53.95a8.6 8.6 0 0 1 4.6 0c1.75-1.2 2.52-.95 2.52-.95.5 1.26.19 2.2.1 2.43.6.64.95 1.47.95 2.48 0 3.56-2.15 4.33-4.21 4.56.33.28.63.84.63 1.69v2.51c0 .25.16.54.64.45A9.25 9.25 0 0 0 12 2.75Z"
-                fill="currentColor"
-              />
-            </svg>
-          </a>
-          <a
-            className="contact-icon-link"
-            href="https://www.linkedin.com/in/srinidhir123"
-            aria-label="LinkedIn profile"
-            title="LinkedIn"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M6.4 8.35a1.45 1.45 0 1 1 0-2.9 1.45 1.45 0 0 1 0 2.9ZM5.1 9.7h2.6v8.2H5.1Zm4.25 0h2.5v1.12h.03c.35-.66 1.2-1.36 2.48-1.36 2.65 0 3.14 1.74 3.14 4v4.44h-2.6v-3.94c0-.94-.02-2.15-1.31-2.15-1.31 0-1.51 1.02-1.51 2.08v4.01h-2.6Z"
-                fill="currentColor"
-              />
-            </svg>
-          </a>
+          <div className="contact-socials">
+            <a href="https://github.com/Abcdnidhi" target="_blank" rel="noreferrer">
+              GitHub
+            </a>
+            <a href="https://www.linkedin.com/in/srinidhir123" target="_blank" rel="noreferrer">
+              LinkedIn
+            </a>
+          </div>
         </div>
       </section>
+
+      <footer className="site-footer">
+        <p>© {new Date().getFullYear()} Srinidhi. Built as a focused developer portfolio.</p>
+        <a href="#top">Back to top</a>
+      </footer>
+
+      <nav className="contact-links" aria-label="Quick contacts">
+        <a className="contact-icon-link" href="#top" aria-label="Back to top" title="Home">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M4.5 10.5 12 4l7.5 6.5M7 9.5V20h10V9.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </a>
+        <a
+          className="contact-icon-link"
+          href="mailto:srinidhi5162@gmail.com"
+          aria-label="Email Srinidhi"
+          title="srinidhi5162@gmail.com"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M4 6.5h16a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 20 17.5H4A1.5 1.5 0 0 1 2.5 16V8A1.5 1.5 0 0 1 4 6.5Zm0 1 8 5 8-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </a>
+        <a
+          className="contact-icon-link"
+          href="https://github.com/Abcdnidhi"
+          aria-label="GitHub profile"
+          title="GitHub"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 2.75a9.25 9.25 0 0 0-2.92 18.03c.46.08.63-.2.63-.45v-1.58c-2.57.56-3.11-1.09-3.11-1.09-.42-1.06-1.02-1.34-1.02-1.34-.84-.58.06-.57.06-.57.92.07 1.41.95 1.41.95.83 1.4 2.17 1 2.7.77.08-.6.32-1 .58-1.24-2.05-.23-4.2-1.02-4.2-4.57 0-1.01.36-1.84.95-2.48-.1-.23-.41-1.17.09-2.43 0 0 .77-.25 2.53.95a8.6 8.6 0 0 1 4.6 0c1.75-1.2 2.52-.95 2.52-.95.5 1.26.19 2.2.1 2.43.6.64.95 1.47.95 2.48 0 3.56-2.15 4.33-4.21 4.56.33.28.63.84.63 1.69v2.51c0 .25.16.54.64.45A9.25 9.25 0 0 0 12 2.75Z"
+              fill="currentColor"
+            />
+          </svg>
+        </a>
+        <a
+          className="contact-icon-link"
+          href="https://www.linkedin.com/in/srinidhir123"
+          aria-label="LinkedIn profile"
+          title="LinkedIn"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M6.4 8.35a1.45 1.45 0 1 1 0-2.9 1.45 1.45 0 0 1 0 2.9ZM5.1 9.7h2.6v8.2H5.1Zm4.25 0h2.5v1.12h.03c.35-.66 1.2-1.36 2.48-1.36 2.65 0 3.14 1.74 3.14 4v4.44h-2.6v-3.94c0-.94-.02-2.15-1.31-2.15-1.31 0-1.51 1.02-1.51 2.08v4.01h-2.6Z"
+              fill="currentColor"
+            />
+          </svg>
+        </a>
+      </nav>
     </main>
   );
 }
