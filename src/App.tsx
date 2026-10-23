@@ -155,18 +155,32 @@ const sectionLinks = [
 
 function ProjectPreview({ project }: { project: Project }) {
   const video = useRef<HTMLVideoElement>(null);
+  const intent = useRef(false);
   const [playing, setPlaying] = useState(false);
+  const pause = () => { intent.current = false; video.current?.pause(); };
+  const play = (automatic = false) => {
+    if (automatic && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    intent.current = true;
+    void video.current?.play().then(() => { if (!intent.current) video.current?.pause(); }).catch(() => setPlaying(false));
+  };
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const pause = () => { if (media.matches) video.current?.pause(); };
-    media.addEventListener("change", pause);
-    return () => media.removeEventListener("change", pause);
+    const onMotionChange = () => { if (media.matches) pause(); };
+    const observer = new IntersectionObserver(([entry]) => { if (!entry.isIntersecting) pause(); });
+    if (video.current) observer.observe(video.current);
+    media.addEventListener("change", onMotionChange);
+    return () => { observer.disconnect(); media.removeEventListener("change", onMotionChange); };
   }, []);
   return (
-    <div className={`project-preview ${project.accentClass}`}>
-      <div className="project-preview-screen">
+    <button type="button" className={`project-preview ${project.accentClass}`}
+      aria-label={`${playing ? "Pause" : "Play"} ${project.title} preview`} aria-pressed={playing}
+      onPointerEnter={(event) => { if (event.pointerType === "mouse") play(true); }}
+      onPointerLeave={(event) => { if (event.pointerType === "mouse") pause(); }}
+      onBlur={pause}
+      onClick={() => { if (video.current?.paused) play(); else pause(); }}>
+      <span className="project-preview-screen">
         <video ref={video} className="project-preview-video" src={project.videoSrc}
-          aria-label={`${project.title} preview`} muted loop playsInline preload="metadata"
+          aria-hidden="true" muted loop playsInline preload="metadata"
           onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
           onLoadedMetadata={(event) => { event.currentTarget.currentTime = project.clipStart ?? 0.1; }}
           onTimeUpdate={(event) => {
@@ -174,15 +188,8 @@ function ProjectPreview({ project }: { project: Project }) {
               event.currentTarget.currentTime = project.clipStart ?? 0;
             }
           }} />
-      </div>
-      <button className="preview-toggle" type="button" aria-label={`${playing ? "Pause" : "Play"} ${project.title} preview`}
-        onClick={() => {
-          if (video.current?.paused) void video.current.play().catch(() => setPlaying(false));
-          else video.current?.pause();
-        }}>
-        <span aria-hidden="true">{playing ? "Ⅱ" : "▶"}</span> {playing ? "Pause preview" : "Play preview"}
-      </button>
-    </div>
+      </span>
+    </button>
   );
 }
 
