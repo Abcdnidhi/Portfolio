@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import eyLogo from "./assets/ey-logo-black.webp";
 import nidhiImage from "./assets/nidhi-img.jpeg";
 import societeGeneraleLogo from "./assets/societe-generale.webp";
@@ -11,12 +11,9 @@ type Project = {
   summary: string;
   stack: string[];
   accentClass: string;
-  previewMode?: "video";
   videoSrc?: string;
-  videoLabel?: string;
   clipStart?: number;
   clipEnd?: number;
-  websiteHref: string;
   sourceHref: string;
 };
 
@@ -37,10 +34,7 @@ const projects: Project[] = [
       "A SaaS-style AI toolkit that brings multiple productivity-focused AI tools into one workspace and makes advanced workflows easier to use.",
     stack: ["Next.js", "TypeScript", "MySQL", "Prisma", "TailwindCSS", "Stripe", "Shadcn UI"],
     accentClass: "preview-vast",
-    previewMode: "video",
     videoSrc: vastVideo,
-    videoLabel: "Live landing page preview",
-    websiteHref: "https://github.com/Abcdnidhi/SAAS-AI-CLOUD",
     sourceHref: "https://github.com/Abcdnidhi/SAAS-AI-CLOUD"
   },
   {
@@ -50,12 +44,9 @@ const projects: Project[] = [
       "A server-authoritative multiplayer game with rooms, challenge workflows, leaderboard support, reconnect handling, and real-time synchronized gameplay.",
     stack: ["React", "TypeScript", "Nakama", "Docker", "PostgreSQL"],
     accentClass: "preview-tictactoe",
-    previewMode: "video",
     videoSrc: ticTacToeVideo,
-    videoLabel: "Live gameplay preview",
     clipStart: 1.2,
     clipEnd: 6.2,
-    websiteHref: "https://github.com/Abcdnidhi/Backend-heavy-projects",
     sourceHref: "https://github.com/Abcdnidhi/Backend-heavy-projects"
   }
 ];
@@ -112,9 +103,43 @@ const sectionLinks = [
   { href: "#contact", label: "Contact" }
 ];
 
+function ProjectPreview({ project }: { project: Project }) {
+  const video = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const pause = () => { if (media.matches) video.current?.pause(); };
+    media.addEventListener("change", pause);
+    return () => media.removeEventListener("change", pause);
+  }, []);
+  return (
+    <div className={`project-preview ${project.accentClass}`}>
+      <div className="project-preview-screen">
+        <video ref={video} className="project-preview-video" src={project.videoSrc}
+          aria-label={`${project.title} preview`} muted loop playsInline preload="metadata"
+          onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
+          onLoadedMetadata={(event) => { event.currentTarget.currentTime = project.clipStart ?? 0.1; }}
+          onTimeUpdate={(event) => {
+            if (project.clipEnd !== undefined && event.currentTarget.currentTime >= project.clipEnd) {
+              event.currentTarget.currentTime = project.clipStart ?? 0;
+            }
+          }} />
+      </div>
+      <button className="preview-toggle" type="button" aria-label={`${playing ? "Pause" : "Play"} ${project.title} preview`}
+        onClick={() => {
+          if (video.current?.paused) void video.current.play().catch(() => setPlaying(false));
+          else video.current?.pause();
+        }}>
+        <span aria-hidden="true">{playing ? "Ⅱ" : "▶"}</span> {playing ? "Pause preview" : "Play preview"}
+      </button>
+    </div>
+  );
+}
+
 export default function App() {
   const [activeSection, setActiveSection] = useState("top");
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const ids = ["top", "about", "experience", "skills", "projects", "contact"];
@@ -122,28 +147,30 @@ export default function App() {
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => Boolean(el));
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-        if (visible?.target.id) {
-          setActiveSection(visible.target.id);
-        }
-      },
-      { rootMargin: "-20% 0px -60% 0px", threshold: [0.15, 0.4, 0.7] }
-    );
-
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    let frame = 0;
+    const update = () => {
+      const current = [...elements].reverse().find((el) => el.getBoundingClientRect().top <= 160);
+      const atBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4;
+      setActiveSection(atBottom ? "contact" : current?.id ?? "top");
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { window.removeEventListener("scroll", onScroll); cancelAnimationFrame(frame); };
   }, []);
 
   useEffect(() => {
     const close = () => setMenuOpen(false);
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { close(); menuButton.current?.focus(); }
+    };
     window.addEventListener("hashchange", close);
-    return () => window.removeEventListener("hashchange", close);
-  }, []);
+    if (menuOpen) window.addEventListener("keydown", escape);
+    return () => { window.removeEventListener("hashchange", close); window.removeEventListener("keydown", escape); };
+  }, [menuOpen]);
 
   return (
     <main className="portfolio-page">
@@ -162,13 +189,14 @@ export default function App() {
           </a>
 
           <button
+            ref={menuButton}
             className="nav-toggle"
             type="button"
             aria-expanded={menuOpen}
             aria-controls="primary-nav"
             onClick={() => setMenuOpen((open) => !open)}
           >
-            <span className="sr-only">Menu</span>
+            <span className="sr-only">{menuOpen ? "Close menu" : "Open menu"}</span>
             <span />
             <span />
           </button>
@@ -179,6 +207,7 @@ export default function App() {
                 key={section.href}
                 href={section.href}
                 className={activeSection === section.href.slice(1) ? "is-active" : undefined}
+                aria-current={activeSection === section.href.slice(1) ? "location" : undefined}
                 onClick={() => setMenuOpen(false)}
               >
                 {section.label}
@@ -188,7 +217,7 @@ export default function App() {
         </div>
       </header>
 
-      <section className="hero-block" id="top">
+      <section className="hero-block" id="top" tabIndex={-1}>
         <div className="hero-layout">
           <div className="hero-content">
             <p className="eyebrow">AI &amp; ML graduate · Backend-focused engineer</p>
@@ -199,13 +228,12 @@ export default function App() {
               </span>
             </h1>
             <p className="hero-subtitle">
-              I am an Artificial Intelligence &amp; Machine Learning Engineering graduate and a Backend Web
-              Developer specialized in Node.js, Express, and MongoDB. I have a strong passion for building
-              user-centric products, with a focus on the Next.js framework.
+              I build reliable backends and thoughtful web experiences. From Node.js APIs to realtime
+              multiplayer systems, I turn complex problems into products that work.
             </p>
             <div className="hero-actions">
               <a className="btn btn-primary" href="#projects">
-                View projects
+                Explore my work ↗
               </a>
               <a className="btn btn-ghost" href="#contact">
                 Get in touch
@@ -214,7 +242,7 @@ export default function App() {
           </div>
           <div className="hero-photo-wrap">
             <div className="hero-photo-ring">
-              <img className="hero-photo" src={nidhiImage} alt="Portrait of Srinidhi" />
+              <img className="hero-photo" src={nidhiImage} alt="Portrait of Srinidhi" width="280" height="280" loading="eager" />
             </div>
             <p className="hero-status">Societe Generale · Systems Engineer</p>
           </div>
@@ -256,8 +284,8 @@ export default function App() {
         </div>
 
         <div className="experience-list">
-          {experience.map((item) => (
-            <details key={`${item.role}-${item.org}`} className="experience-card experience-dropdown">
+          {[...experience].reverse().map((item, index) => (
+            <details key={`${item.role}-${item.org}`} className="experience-card experience-dropdown" open={index === 0}>
               <summary className="experience-summary">
                 <div className="experience-logo-wrap">
                   <img className="experience-logo" src={item.logoSrc} alt={item.logoAlt} />
@@ -315,37 +343,7 @@ export default function App() {
         <div className="projects-grid">
           {projects.map((project) => (
             <article key={project.title} className="project-card">
-              <div className={`project-preview ${project.accentClass}`}>
-                <div className="project-preview-screen">
-                  {project.previewMode === "video" ? (
-                    <video
-                      className="project-preview-video"
-                      src={project.videoSrc}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      preload="auto"
-                      onLoadedMetadata={(event) => {
-                        if (project.clipStart !== undefined) {
-                          event.currentTarget.currentTime = project.clipStart;
-                        }
-                      }}
-                      onTimeUpdate={(event) => {
-                        if (
-                          project.clipStart !== undefined &&
-                          project.clipEnd !== undefined &&
-                          event.currentTarget.currentTime >= project.clipEnd
-                        ) {
-                          event.currentTarget.currentTime = project.clipStart;
-                          void event.currentTarget.play();
-                        }
-                      }}
-                    />
-                  ) : null}
-                </div>
-                {project.videoLabel ? <span className="project-preview-label">{project.videoLabel}</span> : null}
-              </div>
+              <ProjectPreview project={project} />
               <div className="project-body">
                 <div className="project-meta">
                   <h3>{project.title}</h3>
@@ -360,11 +358,8 @@ export default function App() {
                   ))}
                 </div>
                 <div className="project-links">
-                  <a href={project.websiteHref} target="_blank" rel="noreferrer">
-                    Website
-                  </a>
-                  <a href={project.sourceHref} target="_blank" rel="noreferrer">
-                    Source
+<a href={project.sourceHref} target="_blank" rel="noreferrer" aria-label={`View ${project.title} source on GitHub (opens in a new tab)`}>
+                    View source ↗
                   </a>
                 </div>
               </div>
@@ -399,7 +394,7 @@ export default function App() {
       </section>
 
       <footer className="site-footer">
-        <p>© {new Date().getFullYear()} Srinidhi. Built as a focused developer portfolio.</p>
+        <p>© {new Date().getFullYear()} Srinidhi. Crafted with React &amp; TypeScript.</p>
         <a href="#top">Back to top</a>
       </footer>
 
